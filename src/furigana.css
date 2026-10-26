@@ -1,0 +1,126 @@
+/*
+ * WaniKani Context Furigana
+ *
+ * The reading lives in a ::after on each word and is revealed on hover, so
+ * no JavaScript runs during the interaction. Colors come from currentColor
+ * so the overlay follows whatever WaniKani theme is active.
+ */
+
+/* Reserve space above every line, including wrapped ones, so a revealed
+   reading never lands on top of the line above it and nothing moves on hover. */
+.context-sentences [lang="ja"].wkfh-ready,
+.context-sentence [lang="ja"].wkfh-ready {
+  line-height: 2.5;
+  padding-top: 0.25em;
+}
+
+.wkfh-word {
+  position: relative;
+  /* Quiet hint that the word can be hovered. */
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in srgb, currentColor 28%, transparent);
+  text-underline-offset: 0.18em;
+  cursor: help;
+  transition: text-decoration-color 120ms ease-out;
+}
+
+.wkfh-word:hover,
+.wkfh-word:active {
+  text-decoration-color: color-mix(in srgb, currentColor 65%, transparent);
+}
+
+.wkfh-word::after {
+  content: attr(data-wkfh-reading);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 0.1em;
+
+  font-size: 0.55em;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: currentColor;
+  text-decoration: none;
+
+  opacity: 0;
+  transition: opacity 110ms ease-out;
+  pointer-events: none;
+}
+
+.wkfh-word:hover::after,
+.wkfh-word:active::after {
+  opacity: 0.95;
+}
+
+/* Browsers without color-mix() still get a usable, if plainer, underline. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .wkfh-word {
+    text-decoration-color: currentColor;
+    opacity: 0.999;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wkfh-word,
+  .wkfh-word::after {
+    transition: none;
+  }
+}
+
+/* ---------- Hidden English translations ---------- */
+
+/* visibility rather than display: the line keeps its box, so revealing a
+   translation never nudges the sentences below it. */
+.wkfh-en .wkfh-en-text {
+  visibility: hidden;
+}
+
+.wkfh-en.wkfh-en--shown .wkfh-en-text {
+  visibility: visible;
+}
+
+.wkfh-toggle {
+  display: inline-block;
+  vertical-align: baseline;
+  margin-right: 0.5em;
+
+  font: inherit;
+  font-size: 0.78em;
+  line-height: 1.35;
+  padding: 0 0.6em;
+
+  color: inherit;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+  border-radius: 999px;
+  opacity: 0.7;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 120ms ease-out, border-color 120ms ease-out;
+}
+
+.wkfh-toggle:hover,
+.wkfh-toggle:focus-visible {
+  opacity: 1;
+  border-color: color-mix(in srgb, currentColor 65%, transparent);
+}
+
+.wkfh-toggle:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  .wkfh-toggle {
+    border-color: currentColor;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wkfh-toggle {
+    transition: none;
+  }
+}

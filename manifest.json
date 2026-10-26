@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "WaniKani Context Furigana",
+  "version": "1.0.0",
+  "description": "Hover any word in a WaniKani context sentence to reveal its furigana.",
+  "content_scripts": [
+    {
+      "matches": ["https://www.wanikani.com/*", "https://preview.wanikani.com/*"],
+      "js": ["vendor/kuromoji.js", "src/content.js"],
+      "css": ["src/furigana.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["dict/*.dat.gz"],
+      "matches": ["https://www.wanikani.com/*", "https://preview.wanikani.com/*"]
+    }
+  ]
+}

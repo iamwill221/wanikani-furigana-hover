@@ -1,0 +1,23 @@
+# Dependencies (Playwright for tools/test-extension.mjs)
+node_modules/
+package-lock.json
+
+# Test artifacts
+test-results/
+playwright-report/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Local Claude Code settings
+.claude/
+
+# Packaged builds
+*.zip
+*.crx
+*.pem
