@@ -12,6 +12,9 @@ and keep English translations hidden until you click **Show**.
   button, one per sentence, in both Context Sentences and Patterns of Use
   (Common Word Combinations). Click again to hide and re-test yourself.
 
+<img width="521" height="167" alt="Screenshot 2026-10-30 080113" src="https://github.com/user-attachments/assets/b215ec98-6f55-46f1-9575-dca44bf9c7e0" />
+
+
 Readings are generated locally by [kuromoji.js](https://github.com/takuyaa/kuromoji.js)
 with the IPADIC dictionary bundled inside the extension. Nothing is sent anywhere,
 no API token is needed, and it works offline.
