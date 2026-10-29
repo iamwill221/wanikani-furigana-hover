@@ -1,5 +1,5 @@
 /*
- * WaniKani Context Furigana
+ * WaniKani Sentence Practice
  *
  * Wraps each word of a context sentence in a span carrying its hiragana
  * reading, then lets CSS reveal that reading on hover. The reveal is pure
@@ -128,8 +128,74 @@
         try {
           hideEnglish(enEl);
         } catch (err) {
-          console.warn("[WaniKani Context Furigana] could not hide translation:", err);
+          console.warn("[WaniKani Sentence Practice] could not hide translation:", err);
         }
+      }
+    }
+  }
+
+  /* ---------- Spoken sentences ---------- */
+
+  const SPEAK_DONE = "wkfhSpeakDone";
+  const SPEAK_RATE = 0.85; // a touch slower than native speed, easier to follow
+  const SPEAKER_ICON =
+    '<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M3 9v6h4l5 5V4L7 9H3z"/>' +
+    '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
+    'd="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+  // Voices load asynchronously in Chrome, so look one up at click time.
+  function japaneseVoice() {
+    const voices = speechSynthesis.getVoices();
+    return voices.find((v) => v.lang === "ja-JP") || voices.find((v) => /^ja\b/i.test(v.lang)) || null;
+  }
+
+  function speak(text, button) {
+    speechSynthesis.cancel(); // a new sentence replaces the one still playing
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ja-JP";
+    utterance.rate = SPEAK_RATE;
+    const voice = japaneseVoice();
+    if (voice) utterance.voice = voice;
+
+    const done = () => button.classList.remove("wkfh-speak--playing");
+    utterance.onend = done;
+    utterance.onerror = done;
+    button.classList.add("wkfh-speak--playing");
+    speechSynthesis.speak(utterance);
+  }
+
+  function addSpeaker(sentenceEl) {
+    // Read the sentence now, while it is still plain text: the furigana pass
+    // only wraps words in spans, but this keeps the button out of the equation.
+    const text = sentenceEl.textContent.replace(/\s+/g, "").trim();
+    if (!text) return;
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "wkfh-speak";
+    button.setAttribute("aria-label", "Play sentence audio");
+    button.title = "Play sentence audio";
+    button.innerHTML = SPEAKER_ICON;
+
+    button.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      speak(text, button);
+    });
+
+    sentenceEl.appendChild(button);
+  }
+
+  function scanSpeakers() {
+    if (!("speechSynthesis" in window)) return;
+    for (const el of document.querySelectorAll(SENTENCE_SELECTOR)) {
+      if (el.dataset[SPEAK_DONE]) continue;
+      el.dataset[SPEAK_DONE] = "1";
+      try {
+        addSpeaker(el);
+      } catch (err) {
+        console.warn("[WaniKani Sentence Practice] could not add audio button:", err);
       }
     }
   }
@@ -214,7 +280,7 @@
     try {
       tokenizer = await getTokenizer();
     } catch (err) {
-      console.warn("[WaniKani Context Furigana] dictionary unavailable:", err);
+      console.warn("[WaniKani Sentence Practice] dictionary unavailable:", err);
       for (const el of pending) delete el.dataset[DONE];
       return;
     }
@@ -223,7 +289,7 @@
       try {
         decorate(el, tokenizer);
       } catch (err) {
-        console.warn("[WaniKani Context Furigana] could not decorate sentence:", err);
+        console.warn("[WaniKani Sentence Practice] could not decorate sentence:", err);
       }
     }
   }
@@ -237,6 +303,7 @@
     requestAnimationFrame(() => {
       queued = false;
       scanEnglish();
+      scanSpeakers();
       scanFurigana();
     });
   }
@@ -247,5 +314,6 @@
   });
   document.addEventListener("turbo:load", queueScan);
   scanEnglish();
+  scanSpeakers();
   queueScan();
 })();

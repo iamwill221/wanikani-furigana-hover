@@ -1,8 +1,13 @@
-# WaniKani Context Furigana
+# WaniKani Sentence Practice
 
-Two things, for reading WaniKani sentences without being handed the answer:
+A Chrome extension for practicing with WaniKani's example sentences. Hover any
+word in a context sentence to see its furigana, listen to the sentence read aloud,
+and keep English translations hidden until you click **Show**.
 
 - **Furigana on hover.** Hover any word in a context sentence to see its reading.
+- **Spoken sentences.** A speaker button beside each sentence reads it aloud using
+  your browser's built-in Japanese voice (no network needed with an installed
+  voice). Press another sentence's button to switch.
 - **Hidden translations.** English translations start hidden behind a **Show**
   button, one per sentence, in both Context Sentences and Patterns of Use
   (Common Word Combinations). Click again to hide and re-test yourself.
@@ -50,9 +55,7 @@ Tokenization uses IPADIC, which is good but not perfect. Two guards are in place
 - **Godan volitional forms.** IPADIC contains a few bogus noun entries that swallow
   a whole verb form. 入ろう is listed as a noun read ニュウロウ instead of はいろう.
   When a noun token ends in an お-row kana plus う, the stem is re-tokenized, and the
-  correction is only applied if that stem comes back as exactly one verb. Tested
-  against 25 candidates, this fires on 入ろう (fixed) and 向こう (no-op), and leaves
-  everything else untouched.
+  correction is only applied if that stem comes back as exactly one verb.
 
 If you spot another bad reading, add it to `OVERRIDES` near the top of
 `src/content.js`:
@@ -98,12 +101,12 @@ xvfb-run -a node tools/test-extension.mjs
 ```
 
 It loads the unpacked extension against a mock WaniKani page carrying both a
-Context Sentences section and a Patterns of Use panel, and checks 18 things:
-translations are hidden before the dictionary loads, every sentence in both
-sections gets a toggle, revealing one leaves the others alone and shifts nothing,
-the button re-hides and responds to Enter, translation text survives intact,
-readings are correct in both sections, hover reveals furigana without moving the
-line, and sentences injected after page load are picked up.
+Context Sentences section and a Patterns of Use panel. It checks that translations are hidden
+before the dictionary loads, every sentence in both sections gets a toggle,
+revealing one leaves the others alone and shifts nothing, the button re-hides and
+responds to Enter, translation text survives intact, readings are correct in both
+sections, hover reveals furigana without moving the line, and sentences injected
+after page load are picked up.
 
 ## Notes and limits
 

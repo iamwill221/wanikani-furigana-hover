@@ -67,7 +67,7 @@ const ctx = await chromium.launchPersistentContext(mkdtempSync(join(tmpdir(), "w
 const page = await ctx.newPage();
 const noise = [];
 page.on("console", (m) => {
-  if (m.type() === "error" || m.text().includes("Context Furigana")) noise.push(m.text());
+  if (m.type() === "error" || m.text().includes("Sentence Practice")) noise.push(m.text());
 });
 await page.route("https://www.wanikani.com/**", (route) =>
   route.fulfill({ status: 200, contentType: "text/html; charset=utf-8", body: MOCK })
@@ -134,6 +134,21 @@ const kbd = await page.$$eval(".wkfh-en-text", (els) =>
 );
 check("keyboard reveals the collocation translation", kbd[2] === "visible", kbd.join(","));
 
+// The content script runs in an isolated world, so speechSynthesis cannot be
+// stubbed from here. Check the controls exist and are safe to press instead.
+console.log("\nSpoken sentences");
+const speakers = await page.$$eval(".wkfh-speak", (els) =>
+  els.map((e) => e.tagName + "/" + e.getAttribute("aria-label"))
+);
+check("an audio button on every sentence, both sections",
+  speakers.length === 4 && speakers.every((s) => s === "BUTTON/Play sentence audio"),
+  speakers.join(" "));
+
+await page.locator(".wkfh-speak").first().click();
+await page.waitForTimeout(150);
+const sentenceText = await page.$eval('[lang="ja"]', (e) => e.textContent);
+check("audio button leaves the sentence text intact", sentenceText === "はやく中に入ろう。", sentenceText);
+
 console.log("\nFurigana");
 await page.waitForSelector(".wkfh-word", { timeout: 60000 });
 const words = await page.$$eval(".wkfh-word", (els) =>
@@ -169,11 +184,13 @@ const late = await page.evaluate(() => {
     words: [...d.querySelectorAll(".wkfh-word")].map((e) => e.textContent + "=" + e.getAttribute("data-wkfh-reading")),
     hidden: getComputedStyle(d.querySelector(".wkfh-en-text")).visibility,
     toggles: d.querySelectorAll(".wkfh-toggle").length,
+    speakers: d.querySelectorAll(".wkfh-speak").length,
   };
 });
 check("late sentence gets furigana", late.words.includes("買いました=かいました"), late.words.join(" "));
 check("late sentence translation hidden with a toggle",
   late.hidden === "hidden" && late.toggles === 1, JSON.stringify(late));
+check("late sentence gets an audio button", late.speakers === 1, JSON.stringify(late));
 
 check("no console errors", noise.length === 0, noise.join(" | "));
 

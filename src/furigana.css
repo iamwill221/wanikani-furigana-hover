@@ -1,5 +1,5 @@
 /*
- * WaniKani Context Furigana
+ * WaniKani Sentence Practice
  *
  * The reading lives in a ::after on each word and is revealed on hover, so
  * no JavaScript runs during the interaction. Colors come from currentColor
@@ -121,6 +121,44 @@
 
 @media (prefers-reduced-motion: reduce) {
   .wkfh-toggle {
+    transition: none;
+  }
+}
+
+/* ---------- Spoken sentences ---------- */
+
+.wkfh-speak {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.4em;
+
+  font-size: 0.85em;
+  line-height: 1;
+  padding: 0.2em;
+
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  opacity: 0.55;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 120ms ease-out;
+}
+
+.wkfh-speak:hover,
+.wkfh-speak:focus-visible,
+.wkfh-speak--playing {
+  opacity: 1;
+}
+
+.wkfh-speak:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wkfh-speak {
     transition: none;
   }
 }
